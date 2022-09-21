@@ -13,7 +13,7 @@ public class KauppaPeli : PhysicsGame
     {
         Level.Background.Color = Color.Black;
         Level.CreateBorders();
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < 50; i++) // vihaiset asiakkat
         {
             LuoSatunainenYmpyra(this, Level.Left, Level.Bottom, Level.Right, 0);
 
@@ -22,12 +22,12 @@ public class KauppaPeli : PhysicsGame
         Keyboard.Listen(Key.Escape, ButtonState.Pressed, ConfirmExit, "Lopeta peli");
 
     }
-   public static void LuoSatunainenYmpyra(PhysicsGame peli,double pieninx,double pieniny,double isoinx,double isoinY)
+   public static void LuoSatunainenYmpyra(PhysicsGame peli,double pieninX,double pieninY,double isoinX,double isoinY)
     {
         double leveys = RandomGen.NextDouble(40, 40);
         double korkeus = RandomGen.NextDouble(40, 40);  
         PhysicsObject ympyra = new PhysicsObject(leveys, korkeus, Shape.Circle);
-        ympyra.Position = RandomGen.NextVector(pieninx, pieniny, isoinx, isoinY);
+        ympyra.Position = RandomGen.NextVector(pieninX, pieninY, isoinX, isoinY);
         peli.Add(ympyra);
     }
 }
