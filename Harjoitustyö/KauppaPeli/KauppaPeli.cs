@@ -41,6 +41,7 @@ public class KauppaPeli : PhysicsGame
         double korkeus = RandomGen.NextDouble(40, 40);  
         Vector liike = RandomGen.NextVector(0, vauhti);
         PhysicsObject ympyra = new PhysicsObject(leveys, korkeus, Shape.Circle);
+        ympyra.Position = RandomGen.NextVector(umpyra);
         ympyra.Hit(liike);
         peli.Add(ympyra);
         return ympyra;
