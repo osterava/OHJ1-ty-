@@ -13,13 +13,10 @@
     </ItemGroup>
 
     <ItemGroup>
-      <None Remove="Contents\" />
-    </ItemGroup>
-    <ItemGroup>
-      <Folder Include="Contents\" />
-    </ItemGroup>
-    <ItemGroup>
       <None Update="Contents\pelaaja.png">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Content\pelaaja.png">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
     </ItemGroup>

@@ -13,12 +13,20 @@ public class KauppaPeli : PhysicsGame
     {
         BoundingRectangle alaosa = new BoundingRectangle(new Vector(Level.Left, 0), Level.BoundingRect.BottomRight);
         BoundingRectangle ylaosa = new BoundingRectangle(Level.BoundingRect.TopLeft, new Vector(Level.Right, 0));
+        //BoundingRectangle kokopeli = new BoundingRectangle(Level.BoundingRect.BottomLeft, new Vector(Level.TopRight, 0)); ohjaus?
 
         for (int i = 0; i < 15; i++) // vihaiset asiakkat
         {
             LuoSatunaisetAsiakkaat(this, alaosa, 60);
 
         }
+
+        for (int i = 0; i < 20; i++)
+        {
+            LuoTuotteet(this, alaosa, 60);
+
+        }
+
         PhysicsObject pelaaja = LuoSatunaisetAsiakkaat(this, ylaosa, 50);
         pelaaja.Image = LoadImage("pelaaja");
         pelaaja.Color = Color.Red;
@@ -41,11 +49,11 @@ public class KauppaPeli : PhysicsGame
     /// </summary>
     /// <param name="peli">mihin peliin ympyrä luodaan</param>
     /// <param name="umpyra">minkä ymppyrän sisälle luodaan eli paikka</param>
-    /// <param name="vauhti">kolmion vauhti alussa</param>
+    /// <param name="vauhti">ympyrän vauhti alussa</param>
     public static PhysicsObject LuoSatunaisetAsiakkaat(PhysicsGame peli, BoundingRectangle umpyra, double vauhti)
     {
-        double leveys = RandomGen.NextDouble(40, 40);
-        double korkeus = RandomGen.NextDouble(40, 40);
+        double leveys = RandomGen.NextDouble(50, 50);
+        double korkeus = RandomGen.NextDouble(50, 50);
         Vector liike = RandomGen.NextVector(0, vauhti);
         PhysicsObject ympyra = new PhysicsObject(leveys, korkeus, Shape.Circle);
         ympyra.Position = RandomGen.NextVector(umpyra);
@@ -62,6 +70,25 @@ public class KauppaPeli : PhysicsGame
     {
         ympyra.Hit(mihin);
     }
+    /// <summary>
+    /// Aliohjelma luo vihamieliset asiakkaat
+    /// </summary>
+    /// <param name="peli">mihin peliin ympyrä luodaan</param>
+    /// <param name="umpyra">minkä ymppyrän sisälle luodaan eli paikka</param>
+    /// <param name="vauhti">ympyrän vauhti alussa</param>
+    public static PhysicsObject LuoTuotteet(PhysicsGame peli, BoundingRectangle umpyra, double vauhti)
+    {
+        double leveys = RandomGen.NextDouble(45, 45);
+        double korkeus = RandomGen.NextDouble(45, 45);
+        Vector liike = RandomGen.NextVector(0, vauhti);
+        PhysicsObject ympyra = new PhysicsObject(leveys, korkeus, Shape.Circle);
+        ympyra.Position = RandomGen.NextVector(umpyra);
+        ympyra.Color = Color.Blue;
+        ympyra.Hit(liike);
+        peli.Add(ympyra);
+        return ympyra;
+    }
+
 }
 
 
