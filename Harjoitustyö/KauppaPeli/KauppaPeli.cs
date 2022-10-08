@@ -13,27 +13,32 @@ public class KauppaPeli : PhysicsGame
     {
         BoundingRectangle alaosa = new BoundingRectangle(new Vector(Level.Left, 0), Level.BoundingRect.BottomRight);
         BoundingRectangle ylaosa = new BoundingRectangle(Level.BoundingRect.TopLeft, new Vector(Level.Right, 0));
-        //BoundingRectangle kokopeli = new BoundingRectangle(Level.BoundingRect.BottomLeft, new Vector(Level.TopRight, 0)); ohjaus?
+        //TODO:BoundingRectangle kokopeli = new BoundingRectangle(Level.BoundingRect.BottomLeft, new Vector(Level.TopRight, 0)); ohjaus?
 
         for (int i = 0; i < 15; i++) // vihaiset asiakkat
         {
-            LuoSatunaisetAsiakkaat(this, alaosa, 60);
+            PhysicsObject vihaisetAsiakkaat = LuoSatunaisetAsiakkaat(this, alaosa, 60);
+            vihaisetAsiakkaat.Image = LoadImage("vihasiakas"); // creative commons kuva linkki https://fi.depositphotos.com/52847715/stock-photo-angry-customer-at-supermarket.html
+                                                               // tekijä stokkete
+
 
         }
 
         for (int i = 0; i < 20; i++)
         {
-            LuoTuotteet(this, alaosa, 60);
+            PhysicsObject tuotteet = LuoTuotteet(this, alaosa, 60);
+            tuotteet.Image = LoadImage("tuotteet"); //Creative commons kuva linkki https://fi.depositphotos.com/47120155/stock-photo-shopping-basket-with-groceries.html
+                                                    //Tekijä: chressiesjd
 
         }
 
         PhysicsObject pelaaja = LuoSatunaisetAsiakkaat(this, ylaosa, 50);
         pelaaja.Image = LoadImage("pelaaja");
-        pelaaja.Color = Color.Red;
 
         PhoneBackButton.Listen(ConfirmExit, "Lopeta peli");
         Keyboard.Listen(Key.Escape, ButtonState.Pressed, ConfirmExit, "Lopeta peli");
-        Level.Background.Color = Color.Black;
+        Level.Background.Image = LoadImage("background.jpeg");
+        Level.BackgroundColor = Color.White;
         Level.CreateBorders();
 
         Keyboard.Listen(Key.F1, ButtonState.Pressed, ShowControlHelp, "Näytä avustus");
