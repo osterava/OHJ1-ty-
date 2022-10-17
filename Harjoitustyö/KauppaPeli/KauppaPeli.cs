@@ -10,10 +10,14 @@ namespace KauppaPeli;
 public class KauppaPeli : PhysicsGame
 {
     IntMeter pistelaskuri;
+    DoubleMeter elamalaskuri;
+    private EasyHighScore topkyba = new EasyHighScore();
+    List<Label> valikonKohdat;
 
     public override void Begin()
     {
-        
+        Valikko();
+
         BoundingRectangle alaosa = new BoundingRectangle(new Vector(Level.Left, 0), Level.BoundingRect.BottomRight);
         BoundingRectangle ylaosa = new BoundingRectangle(Level.BoundingRect.TopLeft, new Vector(Level.Right, 0));
         //TODO:BoundingRectangle kokopeli = new BoundingRectangle(Level.BoundingRect.BottomLeft, new Vector(Level.TopRight, 0)); ohjaus?'
@@ -30,7 +34,7 @@ public class KauppaPeli : PhysicsGame
 
         for (int i = 0; i < 20; i++) //kerättävät tuotteet
         {
-            PhysicsObject tuotteet = LuoTuotteet(this, alaosa, 60,"tuotteet");
+            PhysicsObject tuotteet = LuoTuotteet(this, alaosa, 60, "tuotteet");
             tuotteet.Image = LoadImage("tuotteet"); //Creative commons kuva linkki https://fi.depositphotos.com/47120155/stock-photo-shopping-basket-with-groceries.html
                                                     //Tekijä: chressiesjd
 
@@ -55,7 +59,9 @@ public class KauppaPeli : PhysicsGame
         AddCollisionHandler(pelaaja, "vihu", TormasiAsiakkaasen);
         AddCollisionHandler(pelaaja, "tuotteet", KerasiTuotteen);
         LuoPistelaskuri();
+        LuoElamalaskuri();
     }
+
     /// <summary>
     /// Aliohjelma luo vihamieliset asiakkaat
     /// </summary>
@@ -68,11 +74,12 @@ public class KauppaPeli : PhysicsGame
         double leveys = RandomGen.NextDouble(50, 50);
         double korkeus = RandomGen.NextDouble(50, 50);
         Vector liike = RandomGen.NextVector(0, vauhti);
-        PhysicsObject ympyra = new PhysicsObject(leveys, korkeus, Shape.Circle);
-        ympyra.Position = RandomGen.NextVector(umpyra);
-        ympyra.Hit(liike);
-        peli.Add(ympyra);
-        return ympyra;
+        PhysicsObject asiakkaat = new PhysicsObject(leveys, korkeus, Shape.Circle);
+        asiakkaat.Position = RandomGen.NextVector(umpyra);
+        asiakkaat.Hit(liike);
+        asiakkaat.Tag = "vihu";
+        peli.Add(asiakkaat);
+        return asiakkaat;
     }
     /// <summary>
     /// lyödään kolmiota eli pelaajaa voimavektorilla 
@@ -95,29 +102,13 @@ public class KauppaPeli : PhysicsGame
         double leveys = RandomGen.NextDouble(45, 45);
         double korkeus = RandomGen.NextDouble(45, 45);
         Vector liike = RandomGen.NextVector(0, vauhti);
-        PhysicsObject ympyra = new PhysicsObject(leveys, korkeus, Shape.Circle);
-        ympyra.Position = RandomGen.NextVector(umpyra);
-        ympyra.Color = Color.Blue;
-        ympyra.Hit(liike);
-        peli.Add(ympyra);
-        return ympyra;
-    }
-
-    /// <summary>
-    /// Laskee ympyrän pinta-alan ja palauttaa sen törmäysmetodille
-    /// </summary>
-    /// <param name="r">ympyrän säde</param>
-    /// <returns>palauttaa ympyrän säteen</returns>
-    /// <example>
-    /// <pre name="test">
-    ///     YmpyranAla(2) ~~ 12,566370614359;
-    ///     YmpyranAla(4) ~~~ 50,265482457437;
-    ///     YmpyranAla(0) ~~~ 0;
-    /// </pre>
-    /// </example>
-    public static double YmpyranAla(double r)
-    {
-        return (Math.PI * (r * r));
+        PhysicsObject tuotteet = new PhysicsObject(leveys, korkeus, Shape.Circle);
+        tuotteet.Position = RandomGen.NextVector(umpyra);
+        tuotteet.Color = Color.Blue;
+        tuotteet.Tag = "tuotteet";
+        tuotteet.Hit(liike);
+        peli.Add(tuotteet);
+        return tuotteet;
     }
 
     /// <summary>
@@ -127,26 +118,18 @@ public class KauppaPeli : PhysicsGame
     /// <param name="vihu"></param>
     public void TormasiAsiakkaasen(PhysicsObject pelaaja, PhysicsObject vihu)
     {
-        pelaaja.Destroy();
-        /* double pelaajanPintaAla = YmpyranAla(pelaaja.Height);
-         double vihunPintaAla = YmpyranAla(vihu.Height);
-
-         if (pelaajanPintaAla<vihunPintaAla)
-         {
-             Explosion rajahdys = new Explosion(vihu.Width * 2);
-             rajahdys.Position = vihu.Position;
-             rajahdys.UseShockWave = false;
-             return;
-
-         } */
-        Exit();
+        Explosion rajahdys = new Explosion(vihu.Width * 2);
+        rajahdys.Position = vihu.Position;
+        rajahdys.UseShockWave = false;
+        this.Add(rajahdys);
+        elamalaskuri.Value -= 1;
     }
 
     public void KerasiTuotteen(PhysicsObject pelaaja, PhysicsObject tuote)
     {
         tuote.Destroy();
         pistelaskuri.Value += 1;
-
+        elamalaskuri.Value += 1;
     }
 
     void LuoPistelaskuri()
@@ -164,6 +147,77 @@ public class KauppaPeli : PhysicsGame
         Add(pistenaytto);
     }
 
+    void LuoElamalaskuri()
+    {
+        elamalaskuri = new DoubleMeter(10);
+        elamalaskuri.MaxValue = 5;
+        elamalaskuri.LowerLimit += ElamaLoppui;
+
+        ProgressBar elamapalkki = new ProgressBar(150, 20);
+        elamapalkki.X = Screen.Right + 150;
+        elamapalkki.Y = Screen.Top - 20;
+        elamapalkki.BarColor = Color.Red;
+        elamapalkki.BorderColor = Color.Black;
+        elamapalkki.Color = Color.White;
+        elamapalkki.BindTo(elamalaskuri);
+        Add(elamapalkki);
+    }
+    void ElamaLoppui()
+    {
+        MessageDisplay.Add("Elämät loppuivat, peli päättyy");
+        topkyba.EnterAndShow(pistelaskuri.Value);
+        //topkyba.HighScoreWindow.Closed += Valikko();
+    }
+    void Valikko()
+    {
+        Label otsikko = new Label("Pelin alkuvalikko");
+        otsikko.Y = 100;
+        otsikko.Font = new Font(40, true);
+        Add(otsikko); 
+
+        valikonKohdat = new List<Label>();
+        Label alku = new Label("Aloita uusi peli");
+        alku.Position = new Vector(0, 40);
+        valikonKohdat.Add(alku);
+
+        Label top = new Label("Parhaat pisteet");
+        top.Position = new Vector(0, 0);
+        valikonKohdat.Add(top);
+
+        Label loppu = new Label("Lopeta peli");
+        loppu.Position = new Vector(0, -40);
+        valikonKohdat.Add(loppu);
+
+        foreach (Label valikonKohta in valikonKohdat)
+        {
+            Add(valikonKohta);
+            valikonKohta.Color = Color.Aqua;
+        }
+
+        
+        Mouse.ListenOn(alku, MouseButton.Left, ButtonState.Pressed, AloitaPeli, null);
+        Mouse.ListenOn(top, MouseButton.Left, ButtonState.Pressed, Topkymppi, null);
+        Mouse.ListenOn(loppu, MouseButton.Left, ButtonState.Pressed, Exit, null);
+    }
+    void Topkymppi()
+    {
+        foreach (Label valikonKohta in valikonKohdat)
+        {
+            Remove(valikonKohta);
+        }
+        topkyba.Show();
+        //topkyba.HighScoreWindow.Closed += Valikko();
+
+    }
+    void AloitaPeli()
+    {
+        foreach (Label valikonKohta in valikonKohdat)
+        {
+            Remove(valikonKohta);
+        }
+
+    }
+    
 
 }
 
