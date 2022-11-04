@@ -43,7 +43,7 @@ public class KauppaPeli : PhysicsGame
         Level.CreateBorders();
 
         Timer.CreateAndStart(1, LuoTuote);
-        Timer.CreateAndStart(1.5, LuoAsiakas);
+        Timer.CreateAndStart(1.2, LuoAsiakas);
 
         AddCollisionHandler(pelaaja, "vihu", TormasiAsiakkaasen);
         AddCollisionHandler(pelaaja, "tuotteet", KerasiTuotteen);
@@ -225,7 +225,7 @@ public class KauppaPeli : PhysicsGame
         asiakkaat.Position = RandomGen.NextVector(Level.Bottom,Level.Top);
         asiakkaat.Tag = "vihu";
         asiakkaat.Image = LoadImage("asiakas");
-        asiakkaat.LifetimeLeft = TimeSpan.FromSeconds(5);
+        asiakkaat.LifetimeLeft = TimeSpan.FromSeconds(8);
         Vector liike = RandomGen.NextVector(0, 30);
         asiakkaat.Hit(liike);
         Add(asiakkaat);
