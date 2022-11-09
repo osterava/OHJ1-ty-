@@ -5,7 +5,7 @@ using Jypeli.Assets;
 using Jypeli.Controls;
 using Jypeli.Widgets;
 
-namespace KauppaPeli;
+namespace HarjoitusTyo;
 
 /// @author osterava
 /// @version 4.11.2022
@@ -24,18 +24,17 @@ public class KauppaPeli : PhysicsGame
 
     public override void Begin()
     {
-        
         ClearAll();
         loppu = false;
 
-        BoundingRectangle koko = new BoundingRectangle(new Vector(Level.Left, - 200), Level.BoundingRect.TopRight);
-        //TODO:Seinästä kimpoaminen objekteille vihaisetasiakkaat ja tuotteet
+        BoundingRectangle koko = new BoundingRectangle(new Vector(Level.Left, -200), Level.BoundingRect.TopRight);
+        // TODO:Seinästä kimpoaminen objekteille vihaisetasiakkaat ja tuotteet
 
         for (int i = 0; i < 10; i++) // juomat
         {
             PhysicsObject juomat = LuoJuomat(this, koko, 30, "tuotteet");
             juomat.Image = LoadImage("juoma.png"); // creative commons kuva linkki https://fi.depositphotos.com/52847715/stock-photo-angry-customer-at-supermarket.html
-                                                               // tekijä stokkete
+                                                   // tekijä stokkete
         }
 
 
@@ -53,25 +52,29 @@ public class KauppaPeli : PhysicsGame
 
         AddCollisionHandler(pelaaja, "vihu", TormasiAsiakkaasen);
         AddCollisionHandler(pelaaja, "tuotteet", KerasiTuotteen);
+        AddCollisionHandler(pelaaja, "tuotteet", LaskeKeratytTuotteet);
 
         LuoPistelaskuri();
         LuoElamalaskuri();
         LisaaOhjaimet(pelaaja);
-        List<int> lista = new List<int>(0);
-        int lkt = LaskeKeratytTuotteet(lista,tuote, pelaaja,"tuotteet");
-        LuoTuoteLaskuri(lkt);
+        LuoTuoteLaskuri();
 
     }
 
-    private int LaskeKeratytTuotteet(List<int> l,PhysicsObject kerattava,PhysicsObject keraaja, string tunniste)
+    /// <summary>
+    ///  Kerää taulukkoon tuotteiden keräyksen määrän
+    /// </summary>
+    /// <param name="pelaaja"> kuka kerää</param>
+    /// <param name="tuote"> mikä tuote</param>
+    private void LaskeKeratytTuotteet(PhysicsObject pelaaja, PhysicsObject tuote)
     {
-        if (pistelaskuri.Value > l.Count)
-        {
-           tunniste.Append(l);  
-        }
-        MessageDisplay.Add($"Tuotteita kerätty {l.Count} ");
+        List<string> lista = new List<string>(0);
+        string tunniste = "tuotteet";
 
-        return l.Count;
+        lista.Add(tunniste);
+        tuotelaskuri.Value += lista.Count;
+        MessageDisplay.Add($"KERÄSIT TUOTTEEN, LOISTAVAA! :) ");
+
     }
 
     /// <summary>
@@ -128,7 +131,7 @@ public class KauppaPeli : PhysicsGame
     private void KerasiTuotteen(PhysicsObject pelaaja, PhysicsObject tuote)
     {
         tuote.Destroy();
-        pistelaskuri.Value += 2;
+        pistelaskuri.Value += 3;
         elamalaskuri.Value += 1;
     }
 
@@ -160,7 +163,7 @@ public class KauppaPeli : PhysicsGame
         elamalaskuri.MaxValue = 3;
         elamalaskuri.LowerLimit += Havio;
 
-        ProgressBar elamapalkki = new ProgressBar(150,30);
+        ProgressBar elamapalkki = new ProgressBar(150, 30);
         elamapalkki.X = Level.Right - 100;
         elamapalkki.Y = Level.Top - 100;
         elamapalkki.BarColor = Color.Red;
@@ -182,7 +185,7 @@ public class KauppaPeli : PhysicsGame
         MessageDisplay.Add("Elämät loppuivat, peli päättyy");
         topkyba.EnterAndShow(pistelaskuri.Value);
         topkyba.HighScoreWindow.Closed += AloitaPeli;
-        
+
     }
 
 
@@ -223,7 +226,7 @@ public class KauppaPeli : PhysicsGame
         double leveys = RandomGen.NextDouble(50, 50);
         double korkeus = RandomGen.NextDouble(50, 50);
         PhysicsObject tuotteet = new PhysicsObject(leveys, korkeus, Shape.Circle);
-        tuotteet.Position = RandomGen.NextVector(Level.Bottom,Level.Top) ;
+        tuotteet.Position = RandomGen.NextVector(Level.Bottom, Level.Top);
         tuotteet.Tag = "tuotteet";
         tuotteet.Image = LoadImage("tuotteet.ong.png");
         tuotteet.LifetimeLeft = TimeSpan.FromSeconds(9);
@@ -241,7 +244,7 @@ public class KauppaPeli : PhysicsGame
         double leveys = RandomGen.NextDouble(50, 50);
         double korkeus = RandomGen.NextDouble(50, 50);
         PhysicsObject asiakkaat = new PhysicsObject(leveys, korkeus, Shape.Circle);
-        asiakkaat.Position = RandomGen.NextVector(Level.Bottom,Level.Top);
+        asiakkaat.Position = RandomGen.NextVector(Level.Bottom, Level.Top);
         asiakkaat.Tag = "vihu";
         asiakkaat.Image = LoadImage("asiakas");
         asiakkaat.LifetimeLeft = TimeSpan.FromSeconds(8);
@@ -265,14 +268,17 @@ public class KauppaPeli : PhysicsGame
         Keyboard.Listen(Key.Right, ButtonState.Pressed, LiikutaPelaajaa, "Pelaaja oikealle", kenelle, new Vector(200, 0));
 
     }
-    private void LuoTuoteLaskuri(int lkm)
+
+    /// <summary>
+    /// luo tuotteille laskurin
+    /// </summary>
+    private void LuoTuoteLaskuri()
     {
-        tuotelaskuri = new IntMeter(100);
-        tuotelaskuri.Value = lkm;
+        tuotelaskuri = new IntMeter(0);
 
         Label pistenaytto = new Label();
-        pistenaytto.X = 0;
-        pistenaytto.Y = 0;
+        pistenaytto.X = Screen.Left + 120;
+        pistenaytto.Y = Screen.Top - 150;
         pistenaytto.TextColor = Color.White;
         pistenaytto.Color = Color.Black;
         pistenaytto.Title = "Tuotteita Kerätty ";

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 #endregion
 
-namespace KauppaPeli
+namespace HarjoitusTyo
 {
     /// <summary>
     /// The main class.
