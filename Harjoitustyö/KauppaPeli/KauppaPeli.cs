@@ -12,15 +12,19 @@ namespace KauppaPeli;
 /// <summary>
 ///  Peli, jossa keräillään tuotteita omaan ostoskärryyn
 /// </summary>
+// https://tim.jyu.fi/view/kurssit/tie/ohj1/2022s/demot/demo10?answerNumber=25&b=oLNB7gIsCK6M&size=1&task=tauno&user=osterava#tauno
 public class KauppaPeli : PhysicsGame
 {
-    IntMeter pistelaskuri;
-    DoubleMeter elamalaskuri;
+    private IntMeter pistelaskuri;
+    private IntMeter tuotelaskuri;
+    private DoubleMeter elamalaskuri;
     private EasyHighScore topkyba = new EasyHighScore();
     private bool loppu = false;
+    private PhysicsObject tuote;
 
     public override void Begin()
     {
+        
         ClearAll();
         loppu = false;
 
@@ -38,6 +42,8 @@ public class KauppaPeli : PhysicsGame
         PhysicsObject pelaaja = LuoJuomat(this, koko, 30, "pelaaja");
         pelaaja.Image = LoadImage("pelaaja");
 
+
+
         Level.Background.Image = LoadImage("background2.jpeg"); //Cretive commons kuva linkki https://fi.depositphotos.com/10626948/stock-photo-supermarket.html
         Level.BackgroundColor = Color.White;
         Level.CreateBorders();
@@ -51,9 +57,22 @@ public class KauppaPeli : PhysicsGame
         LuoPistelaskuri();
         LuoElamalaskuri();
         LisaaOhjaimet(pelaaja);
+        List<int> lista = new List<int>(0);
+        int lkt = LaskeKeratytTuotteet(lista,tuote, pelaaja,"tuotteet");
+        LuoTuoteLaskuri(lkt);
 
     }
 
+    private int LaskeKeratytTuotteet(List<int> l,PhysicsObject kerattava,PhysicsObject keraaja, string tunniste)
+    {
+        if (pistelaskuri.Value > l.Count)
+        {
+           tunniste.Append(l);  
+        }
+        MessageDisplay.Add($"Tuotteita kerätty {l.Count} ");
+
+        return l.Count;
+    }
 
     /// <summary>
     ///     Luo pelaajalle kerättäviä juomia
@@ -109,7 +128,7 @@ public class KauppaPeli : PhysicsGame
     private void KerasiTuotteen(PhysicsObject pelaaja, PhysicsObject tuote)
     {
         tuote.Destroy();
-        pistelaskuri.Value += 1;
+        pistelaskuri.Value += 2;
         elamalaskuri.Value += 1;
     }
 
@@ -137,8 +156,8 @@ public class KauppaPeli : PhysicsGame
     /// </summary>
     private void LuoElamalaskuri()
     {
-        elamalaskuri = new DoubleMeter(5);
-        elamalaskuri.MaxValue = 5;
+        elamalaskuri = new DoubleMeter(3);
+        elamalaskuri.MaxValue = 3;
         elamalaskuri.LowerLimit += Havio;
 
         ProgressBar elamapalkki = new ProgressBar(150,30);
@@ -245,6 +264,20 @@ public class KauppaPeli : PhysicsGame
         Keyboard.Listen(Key.Left, ButtonState.Pressed, LiikutaPelaajaa, "Pelaaja vasemmalle", kenelle, new Vector(-200, 0));
         Keyboard.Listen(Key.Right, ButtonState.Pressed, LiikutaPelaajaa, "Pelaaja oikealle", kenelle, new Vector(200, 0));
 
+    }
+    private void LuoTuoteLaskuri(int lkm)
+    {
+        tuotelaskuri = new IntMeter(100);
+        tuotelaskuri.Value = lkm;
+
+        Label pistenaytto = new Label();
+        pistenaytto.X = 0;
+        pistenaytto.Y = 0;
+        pistenaytto.TextColor = Color.White;
+        pistenaytto.Color = Color.Black;
+        pistenaytto.Title = "Tuotteita Kerätty ";
+        pistenaytto.BindTo(tuotelaskuri);
+        Add(pistenaytto);
     }
 }
 
